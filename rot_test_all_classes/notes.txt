@@ -1,0 +1,49 @@
+
+Exception without the modification:
+
+	Call stack of main thread
+	Address    Stack      Procedure / arguments                          Called from                   Frame
+	0019E834   760A29AE   KERNELBA.RaiseException                        RPCRT4.760A29A8               0019E830
+	0019E838   800A0062     ExceptionCode = 800A0062
+	0019E83C   00000001     ExceptionFlags = EXCEPTION_NONCONTINUABLE
+	0019E840   00000000     nArguments = 0
+	0019E844   00000000     pArguments = NULL
+	0019E84C   760A2986   ? RPCRT4.760A2987                              RPCRT4.760A2981
+	0019E858   76B861FB   ? RPCRT4.RpcRaiseException                     combase.76B861F5
+
+
+none of this gets used in native exe with modified objtype that allows it to work...
+
+ActiveX EXE registering class in ROT - class created w/ PubClassFactory
+
+Call stack of main thread
+	Address    Stack      Procedure / arguments                            Called from                   Frame
+	0012FE80   6603B64F   ole32.CoRegisterClassObject                      MSVBVM60.6603B649             0012FEA8
+	0012FEAC   660181EE   MSVBVM60.COAServer::CFRegisterRun                MSVBVM60.660181E9             0012FEA8
+	0012FECC   66018117   MSVBVM60.CVBServer::ErrExitDesignMode            MSVBVM60.66018112             0012FEC8
+	0012FED8   660180ED   MSVBVM60.ErrSrvExitDesignMode                    MSVBVM60.660180E8             0012FEE0
+	0012FEE4   66016801   MSVBVM60.BeginMainProgram                        MSVBVM60.660167FC             0012FEE0
+	0012FEFC   66024502   MSVBVM60.CVBThreadAction::SetProjectData         MSVBVM60.660244FD             0012FEF8
+	0012FF1C   66024263   MSVBVM60.CVBThreadAction::Start                  MSVBVM60.6602425E             0012FF18
+	0012FF3C   66024169   MSVBVM60.CThreadPool::Init                       MSVBVM60.66024164             0012FF38
+	0012FFBC   004011A2   ? <JMP.&MSVBVM60.#100>                           Project1.0040119D             0012FFB8
+
+	HRESULT CoRegisterClassObject(        https://learn.microsoft.com/en-us/windows/win32/api/combaseapi/nf-combaseapi-coregisterclassobject
+		  [in]  REFCLSID  rclsid,
+		  [in]  LPUNKNOWN pUnk,
+		  [in]  DWORD     dwClsContext,   https://learn.microsoft.com/en-us/windows/win32/api/wtypesbase/ne-wtypesbase-clsctx
+		  [in]  DWORD     flags,          https://learn.microsoft.com/en-us/windows/win32/api/combaseapi/ne-combaseapi-regcls
+		  [out] LPDWORD   lpdwRegister
+	);
+
+Stack args:	
+	0012FE84   00C80564   REFCLSID  rclsid,
+	0012FE88   00C805A4   LPUNKNOWN pUnk,
+	0012FE8C   00000005   DWORD     dwClsContext,  CLSCTX_INPROC_SERVER | CLSCTX_LOCAL_SERVER 
+	0012FE90   00000001   DWORD     flags,         REGCLS_MULTIPLEUSE 
+	0012FE94   0012FEA4   LPDWORD   lpdwRegister   [out] 
+
+next values on stack:
+	0012FE98   004011A4  Project1.004011A4 - vbheader.aComRegisterData      4011A4
+	0012FE9C   00401210  Project1.00401210 - comreginfo.fIsInterface             1
+	0012FEA0   004011EC  Project1.004011EC - comreginfo.oNextObject              0
