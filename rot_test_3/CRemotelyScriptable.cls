@@ -6,7 +6,7 @@ BEGIN
   DataSourceBehavior  = 0  'vbNone
   MTSTransactionMode  = 0  'NotAnMTSObject
 END
-Attribute VB_Name = "CRemotlyScriptable"
+Attribute VB_Name = "CRemotelyScriptable"
 Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = True
 Attribute VB_PredeclaredId = False
@@ -16,6 +16,7 @@ Option Explicit
 'rot code from wqweto
 'https://www.vbforums.com/showthread.php?879529-project-one-workng-with-project2
 
+Private Declare Function vbaCheckType Lib "msvbvm60" Alias "__vbaCheckType" (ByVal pObj As Any, ByRef pIID As Any) As Boolean
 Private Declare Sub CopyMemory Lib "kernel32" Alias "RtlMoveMemory" (pDest As Any, pSrc As Any, ByVal ByteLen As Long)
 Private Declare Function GetRunningObjectTable Lib "ole32" (ByVal dwReserved As Long, pResult As IUnknown) As Long
 Private Declare Function CreateFileMoniker Lib "ole32" (ByVal lpszPathName As Long, pResult As IUnknown) As Long
@@ -74,6 +75,12 @@ Private Sub Class_Terminate()
     Next
 End Sub
 
+'.text:66008130 _IID_AreYouABasicInstance dd 0B6C9465 11CFD082 0A0004F8B 4270FC9
+Private Function isVB6Obj(o As IUnknown) As Boolean
+    Dim g(3) As Long: g(0) = &HB6C9465: g(1) = &H11CFD082: g(2) = &HA0004F8B: g(3) = &H4270FC9
+    isVB6Obj = vbaCheckType(o, g(0))
+End Function
+
 Function dbg(x)
     Debug.Print x
     'List2.AddItem x
@@ -110,7 +117,14 @@ Function makeAllPublic(internalObj As Object) As Long
     
     Const flag = &H800
     
-    'we could start with vb.Forms(1)
+    If internalObj Is Nothing Then Exit Function
+        'Set internalObj = VB.Forms(1)
+        
+    If Not isVB6Obj(internalObj) Then
+        MsgBox "Not a vb6 object " & TypeName(internalObj), vbExclamation
+        Exit Function
+    End If
+    
     dbg "Start Obj = " & TypeName(internalObj)
     
     GetMem4 ByVal ObjPtr(internalObj), pVTbl        ' Pointer to any internal vb objects vTable.
@@ -172,6 +186,13 @@ Function makePublic(obj As Object) As Boolean
 
     Const flag = &H800
 
+    If obj Is Nothing Then Exit Function
+    
+    If Not isVB6Obj(obj) Then
+        MsgBox "Not a vb6 object " & TypeName(obj), vbExclamation
+        Exit Function
+    End If
+    
     dbg "Typename(obj) = " & TypeName(obj)
    
     GetMem4 ByVal ObjPtr(obj), pVTbl                ' Pointer to vTable.

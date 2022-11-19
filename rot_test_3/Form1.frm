@@ -33,7 +33,7 @@ Option Explicit
 
 Public myClass As Class1
 
-Private rot As New CRemotlyScriptable
+Private rot As New CRemotelyScriptable
 
 Private Sub Form_Load()
     
