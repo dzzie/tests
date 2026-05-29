@@ -13,7 +13,10 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 Option Explicit
 
-'rot code from wqweto
+'dzzie@yahoo.com
+'http://sandsprite.com
+
+'rot registration code from wqweto
 'https://www.vbforums.com/showthread.php?879529-project-one-workng-with-project2
 
 Private Declare Function vbaCheckType Lib "msvbvm60" Alias "__vbaCheckType" (ByVal pObj As Any, ByRef pIID As Any) As Boolean
